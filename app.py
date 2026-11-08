@@ -1,49 +1,46 @@
-import os
+import google.generativeai as genai
 import streamlit as st
-from google import genai
 
 # Configuration de la page Streamlit
 st.set_page_config(
-    page_title="Méta-Orchestrateur | Nexus mondial de l'IA",
-    page_icon="👑",
-    layout="wide"
+    page_title="Meta-Orchestrateur | Nexus mondial de l'IA", layout="centered"
 )
 
-st.markdown("""
-# 👑 Meta-Orchestrator | Global AI Nexus
-### *La Matrice Centrale de Commande Multi-IA*
-""")
+st.title("👑 Meta-Orchestrateur - Nexus")
+st.write("La Matrice Centrale de Commande pour le réseau d'IA")
 
-# Configuration de la clé API (via les secrets Streamlit ou une saisie utilisateur si besoin)
-api_key = os.getenv("GEMINI_API_KEY")
-if "GEMINI_API_KEY" in st.secrets:
-    api_key = st.secrets["GEMINI_API_KEY"]
+# Récupération de la clé API depuis les secrets Streamlit
+try:
+  api_key = st.secrets["GEMINI_API_KEY"]
+  genai.configure(api_key=api_key)
+  cle_configuree = True
+except Exception as e:
+  cle_configuree = False
+  st.error(
+      "Erreur : La clé API 'GEMINI_API_KEY' n'est pas configurée dans les Secrets"
+      " de Streamlit."
+  )
 
-st.write("Entrez la directive suprême pour le réseau d'IA :")
-
+# Champ de saisie pour la directive
 directive = st.text_area(
-    "Directive :",
-    value="Élaborer un plan d'action immédiat pour vendre des services de création de sites web vitrines aux entreprises locales. Générer la structure HTML/Tailwind CSS d'une page de vente percutante, rédiger une séquence de 3 messages d'approche WhatsApp pour prospecter des clients, et fixer une grille tarifaire compétitive adaptée au marché."
+    "Entrez la directive suprême pour le réseau d'IA :",
+    placeholder=(
+        "Ex: Structurer une offre commerciale complète pour lancer une"
+        " activité..."
+    ),
 )
 
-if st.button("👑 Exécuter le Nexus"):
-    if not api_key:
-        st.error("Erreur : Aucune clé API Gemini n'a été détectée. Veuillez configurer votre clé dans les secrets Streamlit.")
-    else:
-        with st.spinner("👑 Le Nexus déploie sa puissance sur le réseau mondial d'IA..."):
-            try:
-                # Initialisation du client genai avec la nouvelle bibliothèque officielle
-                client = genai.Client(api_key=api_key)
-                
-                # Appel au modèle Gemini (utilisation de gemini-2.5-flash ou équivalent standard)
-                response = client.models.generate_content(
-                    model="gemini-2.5-flash",
-                    contents=directive
-                )
-                
-                st.success("Directive exécutée avec succès par le Nexus !")
-                st.markdown("### 📊 Rapport d'Exécution du Global Nexus")
-                st.write(response.text)
-                
-            except Exception as e:
-                st.error(f"Erreur critique du Nexus : {e}")
+if st.button("🚀 Exécuter le Nexus") and cle_configuree:
+  if directive.strip():
+    try:
+      with st.spinner("Le Nexus traite votre directive..."):
+        # Utilisation d'un modèle récent et valide (gemini-1.5-flash)
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        response = model.generate_content(directive)
+
+        st.subheader("Résultat du Nexus :")
+        st.write(response.text)
+    except Exception as err:
+      st.error(f"Une erreur est survenue lors de l'appel à l'IA : {err}")
+  else:
+    st.warning("Veuillez entrer une directive valide.")
